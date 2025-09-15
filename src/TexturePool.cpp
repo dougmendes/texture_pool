@@ -20,3 +20,30 @@ unsigned int loadTextureFromFile(const std::string& filename, int& width, int& h
     std::cout << "Loaded texture: " << filename << " (simulated)\n";
     return textureID;
 }
+
+bool TexturePool::preloadTexture(const std::string& filename, const std::string& name) {
+    std::lock_guard<std::mutex> lock(pool_mutex);
+
+    // check if texture already exists
+    if (name_to_index.find(name) != name_to_index.end()) {
+        std::cout << "Texture " << name << " already in pool.\n";
+        return true;
+    }
+
+    int width, height;
+    unsigned int texture_id = loadTextureFromFile(filename, width, height);
+
+    TextureInfo info = {
+        texture_id, 
+        width, height,
+        std::chrono::steady_clock::now(),
+        false,
+        name
+    };
+
+    pool.push_back(info);
+    name_to_index[name] = pool.size() - 1;
+
+    std::cout << "Preloaded texture: " << name << " (ID: " << texture_id << ")\n";
+    return true;
+}
