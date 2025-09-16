@@ -17,7 +17,7 @@ class TexturePool {
 private:
     std::vector<TextureInfo> pool;
     std::unordered_map<std::string, size_t> name_to_index;
-    std::mutex pool_mutex;
+    mutable std::mutex pool_mutex;
 
 public:
     bool preloadTexture(const std::string& filename, const std::string& name);
